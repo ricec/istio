@@ -68,6 +68,10 @@ type EchoDeployments struct {
 	// Echo app to be used by tests, with no sidecar injected
 	External echo.Instances
 
+	// Echo app to be used by tests, with no sidecar injected
+	// and workload-only ports matching Istio reserved ports
+	ReservedPorts echo.Instances
+
 	All echo.Instances
 }
 
@@ -83,6 +87,7 @@ const (
 	NakedSvc         = "naked"
 	ExternalSvc      = "external"
 	DeltaSvc         = "delta"
+	ReservedPortsSvc = "reserved-ports"
 
 	externalHostname = "fake.external.com"
 )
@@ -224,6 +229,21 @@ func SetupApps(t resource.Context, i istio.Instance, apps *EchoDeployments) erro
 			AutoRegisterVM:    true,
 			Subsets:           []echo.SubsetConfig{{}},
 			WorkloadOnlyPorts: common.WorkloadPorts,
+		}).
+		WithConfig(echo.Config{
+			Service:   ReservedPortsSvc,
+			Namespace: apps.Namespace,
+			Ports:     common.EchoPorts,
+			Subsets: []echo.SubsetConfig{
+				{
+					Annotations: map[echo.Annotation]*echo.AnnotationValue{
+						echo.SidecarInject: {
+							Value: strconv.FormatBool(false),
+						},
+					},
+				},
+			},
+			WorkloadOnlyPorts: common.ReservedPorts,
 		})
 
 	skipDelta := t.Settings().SkipDelta || !t.Settings().Revisions.AtLeast("1.11")
@@ -275,6 +295,7 @@ func SetupApps(t resource.Context, i istio.Instance, apps *EchoDeployments) erro
 	apps.Naked = echos.Match(echo.Service(NakedSvc))
 	apps.External = echos.Match(echo.Service(ExternalSvc))
 	apps.ProxylessGRPC = echos.Match(echo.Service(ProxylessGRPCSvc))
+	apps.ReservedPorts = echos.Match(echo.Service(ReservedPortsSvc))
 	if !t.Settings().SkipVM {
 		apps.VM = echos.Match(echo.Service(VMSvc))
 	}
