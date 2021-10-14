@@ -38,3 +38,16 @@ var WorkloadPorts = []echo.WorkloadPort{
 	{Protocol: protocol.TCP, Port: 19092},
 	{Protocol: protocol.HTTP, Port: 18083},
 }
+
+var ReservedPorts = []echo.WorkloadPort{
+	{Protocol: protocol.TCP, Port: 15000},
+	{Protocol: protocol.TCP, Port: 15001},
+	{Protocol: protocol.TCP, Port: 15004},
+	{Protocol: protocol.TCP, Port: 15006},
+	{Protocol: protocol.TCP, Port: 15008},
+	{Protocol: protocol.TCP, Port: 15009},
+	{Protocol: protocol.TCP, Port: 15020},
+	{Protocol: protocol.TCP, Port: 15021},
+	{Protocol: protocol.TCP, Port: 15053},
+	{Protocol: protocol.TCP, Port: 15090},
+}

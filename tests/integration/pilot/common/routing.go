@@ -942,6 +942,31 @@ func trafficLoopCases(apps *EchoDeployments) []TrafficTestCase {
 	return cases
 }
 
+// reservedPortPassthroughCases contains tests to ensure outbound traffic on
+// reserved ports (e.g. 15000, 15001, etc.) is not blocked
+func reservedPortPassthroughCases(apps *EchoDeployments) []TrafficTestCase {
+	cases := []TrafficTestCase{}
+	for _, src := range apps.PodA {
+		for _, dst := range apps.ReservedPorts {
+			for _, dstPort := range common.ReservedPorts {
+				src, dst, dstPort := src, dst, dstPort
+				cases = append(cases, TrafficTestCase{
+					name: fmt.Sprintf("Reserved Port %d", dstPort.Port),
+					call: src.CallWithRetryOrFail,
+					opts: echo.CallOptions{
+						Port:      &echo.Port{ServicePort: dstPort.Port, Protocol: dstPort.Protocol},
+						Count:     1,
+						Target:    dst,
+						Scheme:    scheme.TCP,
+						Validator: echo.ExpectOK(),
+					},
+				})
+			}
+		}
+	}
+	return cases
+}
+
 // autoPassthroughCases tests that we cannot hit unexpected destinations when using AUTO_PASSTHROUGH
 func autoPassthroughCases(apps *EchoDeployments) []TrafficTestCase {
 	cases := []TrafficTestCase{}
