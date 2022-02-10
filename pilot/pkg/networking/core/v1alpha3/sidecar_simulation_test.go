@@ -1295,6 +1295,7 @@ func TestLoop(t *testing.T) {
 					ClusterMatched: "BlackHoleCluster",
 				},
 			},
+			// TODO: fix thiss
 			{
 				Name: "direct request to inbound port",
 				Call: simulation.Call{

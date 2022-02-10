@@ -29,11 +29,6 @@ const (
 	// VirtualInboundBlackholeFilterChainName is the name of the filter chain to blackhole undesired traffic
 	VirtualInboundBlackholeFilterChainName = "virtualInbound-blackhole"
 
-	// VirtualInboundOutboundFilterChainName is the name of the filter chain on the Virtual Inbound listener that handles outbound traffic
-	// This slightly confusing scenario happens when outbound traffic policy is ALLOW_ALL and traffic flow is...
-	// app --external_ip:15006--> Envoy --passthrough--> external_ip:15006
-	VirtualInboundOutboundFilterChainName = "virtualInbound-outbound"
-
 	// VirtualInboundListenerName is the name for traffic capture listener
 	VirtualInboundListenerName = "virtualInbound"
 

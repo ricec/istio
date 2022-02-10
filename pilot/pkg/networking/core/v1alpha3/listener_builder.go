@@ -364,12 +364,12 @@ func (lb *ListenerBuilder) buildVirtualOutboundListener(configgen *ConfigGenerat
 	filterChains := make([]*listener.FilterChain, 0, 1)
 	filterChains = append(filterChains, blackholeFilterChain(lb.push, lb.node))
 
-	actualWildcard, _ := getActualWildcardAndLocalHost(lb.node)
+	_, localhost := getActualWildcardAndLocalHost(lb.node)
 
 	// add an extra listener that binds to the port that is the recipient of the iptables redirect
 	ipTablesListener := &listener.Listener{
 		Name:               model.VirtualOutboundListenerName,
-		Address:            util.BuildAddress(actualWildcard, uint32(lb.push.Mesh.ProxyListenPort)),
+		Address:            util.BuildAddress(localhost, uint32(lb.push.Mesh.ProxyListenPort)),
 		Transparent:        isTransparentProxy,
 		UseOriginalDst:     proto.BoolTrue,
 		FilterChains:       filterChains,
@@ -389,7 +389,7 @@ func (lb *ListenerBuilder) buildVirtualInboundListener(configgen *ConfigGenerato
 		isTransparentProxy = proto.BoolTrue
 	}
 
-	actualWildcard, _ := getActualWildcardAndLocalHost(lb.node)
+	_, localhost := getActualWildcardAndLocalHost(lb.node)
 	// add an extra listener that binds to the port that is the recipient of the iptables redirect
 	filterChains, passthroughInspector, usesQUIC := buildInboundCatchAllFilterChains(configgen, lb.node, lb.push)
 
@@ -404,7 +404,7 @@ func (lb *ListenerBuilder) buildVirtualInboundListener(configgen *ConfigGenerato
 	}
 	lb.virtualInboundListener = &listener.Listener{
 		Name:                    model.VirtualInboundListenerName,
-		Address:                 util.BuildAddress(actualWildcard, ProxyInboundListenPort),
+		Address:                 util.BuildAddress(localhost, ProxyInboundListenPort),
 		Transparent:             isTransparentProxy,
 		UseOriginalDst:          proto.BoolTrue,
 		TrafficDirection:        core.TrafficDirection_INBOUND,
@@ -533,26 +533,16 @@ func buildInboundCatchAllFilterChains(configgen *ConfigGeneratorImpl,
 	})
 	// Setup enough slots for common max size (permissive mode is 5 filter chains). This is not
 	// exact, just best effort optimization
-	filterChains := make([]*listener.FilterChain, 0, 2+5*len(ipVersions))
+	filterChains := make([]*listener.FilterChain, 0, 1+5*len(ipVersions))
 	filterChains = append(filterChains, &listener.FilterChain{
 		Name: model.VirtualInboundBlackholeFilterChainName,
 		FilterChainMatch: &listener.FilterChainMatch{
-			// Prevent traffic loops on the inbount listener port while still allowing
+			// Prevent traffic loops on the inbound listener port while still allowing
 			// outbound passthrough to external endpoints that use this same port.
 			DestinationPort: &wrappers.UInt32Value{Value: ProxyInboundListenPort},
 			SourceType:      listener.FilterChainMatch_SAME_IP_OR_LOOPBACK,
 		},
 		Filters: filters,
-	})
-
-	// Allow outbound passthrough to external endpoints that use the same port as the inbound listener.
-	filterChains = append(filterChains, &listener.FilterChain{
-		Name: model.VirtualInboundOutboundFilterChainName,
-		FilterChainMatch: &listener.FilterChainMatch{
-			DestinationPort: &wrappers.UInt32Value{Value: ProxyInboundListenPort},
-			SourceType:      listener.FilterChainMatch_EXTERNAL,
-		},
-		Filters: buildOutboundCatchAllNetworkFiltersOnly(push, node),
 	})
 
 	inspectors := map[int]enabledInspector{}
