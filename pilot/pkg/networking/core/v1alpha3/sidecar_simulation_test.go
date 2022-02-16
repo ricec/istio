@@ -1324,17 +1324,6 @@ func TestLoop(t *testing.T) {
 				},
 			},
 			{
-				Name: "outbound request to localhost on inbound port is blocked",
-				Call: simulation.Call{
-					Address:  "127.0.0.1",
-					Port:     15006,
-					Protocol: simulation.TCP,
-				},
-				Result: simulation.Result{
-					ClusterMatched: "BlackHoleCluster",
-				},
-			},
-			{
 				Name: "inbound request to pod IP on outbound port is blocked",
 				Call: simulation.Call{
 					Address:  podIP,
@@ -1350,30 +1339,6 @@ func TestLoop(t *testing.T) {
 				Name: "inbound request to pod IP on inbound port is blocked",
 				Call: simulation.Call{
 					Address:  podIP,
-					Port:     15006,
-					Protocol: simulation.TCP,
-					CallMode: simulation.CallModeInbound,
-				},
-				Result: simulation.Result{
-					ClusterMatched: "BlackHoleCluster",
-				},
-			},
-			{
-				Name: "inbound request to localhost on outbound port is blocked",
-				Call: simulation.Call{
-					Address:  "127.0.0.1",
-					Port:     15001,
-					Protocol: simulation.TCP,
-					CallMode: simulation.CallModeInbound,
-				},
-				Result: simulation.Result{
-					ClusterMatched: "BlackHoleCluster",
-				},
-			},
-			{
-				Name: "inbound request to localhost on inbound port is blocked",
-				Call: simulation.Call{
-					Address:  "127.0.0.1",
 					Port:     15006,
 					Protocol: simulation.TCP,
 					CallMode: simulation.CallModeInbound,

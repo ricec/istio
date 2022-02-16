@@ -396,11 +396,17 @@ func (lb *ListenerBuilder) buildVirtualInboundListener(configgen *ConfigGenerato
 	}
 
 	var isTransparentProxy *wrappers.BoolValue
+	var listenerIP string
 	if lb.node.GetInterceptionMode() == model.InterceptionTproxy {
 		isTransparentProxy = proto.BoolTrue
+
+		// In TPROXY mode, inbound traffic is directed to loopback.
+		// Otherwise, it is directed to the Pod IP.
+		_, listenerIP = getActualWildcardAndLocalHost(lb.node)
+	} else {
+		listenerIP = lb.node.IPAddresses[0]
 	}
 
-	_, localhost := getActualWildcardAndLocalHost(lb.node)
 	// add an extra listener that binds to the port that is the recipient of the iptables redirect
 	filterChains, passthroughInspector, usesQUIC := buildInboundCatchAllFilterChains(configgen, lb.node, lb.push)
 
@@ -415,7 +421,7 @@ func (lb *ListenerBuilder) buildVirtualInboundListener(configgen *ConfigGenerato
 	}
 	lb.virtualInboundListener = &listener.Listener{
 		Name:                    model.VirtualInboundListenerName,
-		Address:                 util.BuildAddress(localhost, ProxyInboundListenPort),
+		Address:                 util.BuildAddress(listenerIP, ProxyInboundListenPort),
 		Transparent:             isTransparentProxy,
 		UseOriginalDst:          proto.BoolTrue,
 		TrafficDirection:        core.TrafficDirection_INBOUND,

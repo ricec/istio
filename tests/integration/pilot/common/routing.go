@@ -950,14 +950,24 @@ func reservedPortPassthroughCases(apps *EchoDeployments) []TrafficTestCase {
 		for _, dst := range apps.ReservedPorts {
 			for _, dstPort := range common.ReservedPorts {
 				src, dst, dstPort := src, dst, dstPort
+
 				cases = append(cases, TrafficTestCase{
 					name: fmt.Sprintf("Reserved Port %d", dstPort.Port),
-					call: src.CallWithRetryOrFail,
+					call: func(t test.Failer, options echo.CallOptions, retryOptions ...retry.Option) echoclient.ParsedResponses {
+						srcWorkload := src.WorkloadsOrFail(t)[0]
+						dstWorkload := dst.WorkloadsOrFail(t)[0]
+						resp, err := srcWorkload.ForwardEcho(context.Background(), &epb.ForwardEchoRequest{
+							Url:   fmt.Sprintf("http://%s:%d", dstWorkload.Address(), dstPort.Port),
+							Count: 1,
+						})
+
+						if err != nil {
+							t.Fatalf("Request failed: %v", err)
+						}
+
+						return resp
+					},
 					opts: echo.CallOptions{
-						Port:      &echo.Port{ServicePort: dstPort.Port, Protocol: dstPort.Protocol},
-						Count:     1,
-						Target:    dst,
-						Scheme:    scheme.TCP,
 						Validator: echo.ExpectOK(),
 					},
 				})
