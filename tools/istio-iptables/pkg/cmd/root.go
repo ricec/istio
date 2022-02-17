@@ -153,6 +153,7 @@ func constructConfig() *config.Config {
 	if err != nil {
 		panic(err)
 	}
+	cfg.PodIP = podIP.String()
 	cfg.EnableInboundIPv6 = podIP.To4() == nil
 
 	// Lookup DNS nameservers. We only do this if DNS is enabled in case of some obscure theoretical

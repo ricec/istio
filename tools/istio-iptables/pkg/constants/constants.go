@@ -54,6 +54,7 @@ const (
 	MARK     = "MARK"
 	CT       = "CT"
 	DROP     = "DROP"
+	DNAT     = "DNAT"
 )
 
 const (

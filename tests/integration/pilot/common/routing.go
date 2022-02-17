@@ -947,7 +947,7 @@ func trafficLoopCases(apps *EchoDeployments) []TrafficTestCase {
 func reservedPortPassthroughCases(apps *EchoDeployments) []TrafficTestCase {
 	cases := []TrafficTestCase{}
 	for _, src := range apps.PodA {
-		for _, dst := range apps.ReservedPorts {
+		for _, dst := range apps.Naked {
 			for _, dstPort := range common.ReservedPorts {
 				src, dst, dstPort := src, dst, dstPort
 
@@ -2272,6 +2272,7 @@ func protocolSniffingCases(apps *EchoDeployments) []TrafficTestCase {
 			},
 		},
 	)
+
 	//validate: func(src echo.Caller, dst echo.Instances, opts *echo.CallOptions) echo.Validator {
 	//	if call.scheme == scheme.TCP || src.(echo.Instance).Config().IsProxylessGRPC() {
 	//		// no host header for TCP
