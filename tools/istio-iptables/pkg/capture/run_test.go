@@ -37,6 +37,7 @@ func constructTestConfig() *config.Config {
 		InboundTProxyMark:       "1337",
 		InboundTProxyRouteTable: "133",
 		RestoreFormat:           true,
+		PodIP:                   "1.2.3.4",
 	}
 }
 

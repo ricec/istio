@@ -355,19 +355,18 @@ spec:
 	expectedEgressCluster := "outbound|5000|shiny|foo.bar"
 
 	found := false
-	for _, f := range xdstest.ExtractListener("virtualOutbound", listeners).FilterChains {
-		// We want to check the match all filter chain, as this is testing the fallback logic
-		if f.FilterChainMatch != nil {
-			continue
-		}
-		tcp := xdstest.ExtractTCPProxy(t, f)
-		if tcp.GetCluster() != expectedEgressCluster {
-			t.Fatalf("got unexpected fallback destination: %v, want %v", tcp.GetCluster(), expectedEgressCluster)
-		}
-		found = true
+	defaultFilterChain := xdstest.ExtractListener("virtualOutbound", listeners).DefaultFilterChain
+	if defaultFilterChain == nil {
+		t.Fatalf("failed to find outbound catch-all filter chain")
 	}
-	if !found {
+
+	tcp := xdstest.ExtractTCPProxy(t, defaultFilterChain)
+	if tcp == nil {
 		t.Fatalf("failed to find tcp proxy")
+	}
+
+	if tcp.GetCluster() != expectedEgressCluster {
+		t.Fatalf("got unexpected fallback destination: %v, want %v", tcp.GetCluster(), expectedEgressCluster)
 	}
 
 	found = false

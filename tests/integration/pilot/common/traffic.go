@@ -27,7 +27,6 @@ import (
 	"istio.io/istio/pkg/test/framework/components/echo/echotest"
 	"istio.io/istio/pkg/test/framework/components/istio"
 	"istio.io/istio/pkg/test/framework/components/istio/ingress"
-	"istio.io/istio/pkg/test/framework/label"
 	"istio.io/istio/pkg/test/framework/resource"
 	"istio.io/istio/pkg/test/util/retry"
 	"istio.io/istio/pkg/test/util/tmpl"
@@ -236,37 +235,37 @@ func (c TrafficTestCase) Run(t framework.TestContext, namespace string) {
 
 func RunAllTrafficTests(t framework.TestContext, i istio.Instance, apps *EchoDeployments) {
 	cases := map[string][]TrafficTestCase{}
-	if !t.Settings().Selector.Excludes(label.NewSet(label.IPv4)) { // https://github.com/istio/istio/issues/35835
-		cases["jwt-claim-route"] = jwtClaimRoute(apps)
-	}
-	cases["virtualservice"] = virtualServiceCases(t.Settings().SkipVM)
-	cases["sniffing"] = protocolSniffingCases(apps)
-	cases["selfcall"] = selfCallsCases()
-	cases["serverfirst"] = serverFirstTestCases(apps)
-	cases["gateway"] = gatewayCases()
-	cases["autopassthrough"] = autoPassthroughCases(apps)
-	cases["loop"] = trafficLoopCases(apps)
-	cases["tls-origination"] = tlsOriginationCases(apps)
-	cases["instanceip"] = instanceIPTests(apps)
-	cases["services"] = serviceCases(apps)
+	// if !t.Settings().Selector.Excludes(label.NewSet(label.IPv4)) { // https://github.com/istio/istio/issues/35835
+	// 	cases["jwt-claim-route"] = jwtClaimRoute(apps)
+	// }
+	// cases["virtualservice"] = virtualServiceCases(t.Settings().SkipVM)
+	// cases["sniffing"] = protocolSniffingCases(apps)
+	// cases["selfcall"] = selfCallsCases()
+	// cases["serverfirst"] = serverFirstTestCases(apps)
+	// cases["gateway"] = gatewayCases()
+	// cases["autopassthrough"] = autoPassthroughCases(apps)
+	// cases["loop"] = trafficLoopCases(apps)
+	// cases["tls-origination"] = tlsOriginationCases(apps)
+	// cases["instanceip"] = instanceIPTests(apps)
+	// cases["services"] = serviceCases(apps)
 	cases["reserved-ports"] = reservedPortPassthroughCases(apps)
-	if h, err := hostCases(apps); err != nil {
-		t.Fatal("failed to setup host cases: %v", err)
-	} else {
-		cases["host"] = h
-	}
-	cases["envoyfilter"] = envoyFilterCases(apps)
-	if len(t.Clusters().ByNetwork()) == 1 {
-		// Consistent hashing does not work for multinetwork. The first request will consistently go to a
-		// gateway, but that gateway will tcp_proxy it to a random pod.
-		cases["consistent-hash"] = consistentHashCases(apps)
-	}
-	cases["use-client-protocol"] = useClientProtocolCases(apps)
-	cases["destinationrule"] = destinationRuleCases(apps)
-	if !t.Settings().SkipVM {
-		cases["vm"] = VMTestCases(apps.VM, apps)
-	}
-	cases["dns"] = DNSTestCases(apps, i.Settings().EnableCNI)
+	// if h, err := hostCases(apps); err != nil {
+	// 	t.Fatal("failed to setup host cases: %v", err)
+	// } else {
+	// 	cases["host"] = h
+	// }
+	// cases["envoyfilter"] = envoyFilterCases(apps)
+	// if len(t.Clusters().ByNetwork()) == 1 {
+	// 	// Consistent hashing does not work for multinetwork. The first request will consistently go to a
+	// 	// gateway, but that gateway will tcp_proxy it to a random pod.
+	// 	cases["consistent-hash"] = consistentHashCases(apps)
+	// }
+	// cases["use-client-protocol"] = useClientProtocolCases(apps)
+	// cases["destinationrule"] = destinationRuleCases(apps)
+	// if !t.Settings().SkipVM {
+	// 	cases["vm"] = VMTestCases(apps.VM, apps)
+	// }
+	// cases["dns"] = DNSTestCases(apps, i.Settings().EnableCNI)
 	for name, tts := range cases {
 		t.NewSubTest(name).Run(func(t framework.TestContext) {
 			for _, tt := range tts {
