@@ -136,6 +136,11 @@ func SetupApps(t resource.Context, i istio.Instance, apps *EchoDeployments) erro
 		p.ServicePort = p.InstancePort
 		headlessPorts[i] = p
 	}
+
+	workloadAndReservedPorts := make([]echo.WorkloadPort, len(common.WorkloadPorts)+len(common.ReservedPorts))
+	workloadAndReservedPorts = append(workloadAndReservedPorts, common.WorkloadPorts...)
+	workloadAndReservedPorts = append(workloadAndReservedPorts, common.ReservedPorts...)
+
 	builder := echoboot.NewBuilder(t).
 		WithClusters(t.Clusters()...).
 		WithConfig(echo.Config{
@@ -190,7 +195,7 @@ func SetupApps(t resource.Context, i istio.Instance, apps *EchoDeployments) erro
 					},
 				},
 			},
-			WorkloadOnlyPorts: common.WorkloadPorts,
+			WorkloadOnlyPorts: workloadAndReservedPorts,
 		}).
 		WithConfig(echo.Config{
 			Service:           ExternalSvc,
