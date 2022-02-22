@@ -133,7 +133,7 @@ func (cfg Config) toTemplateParams() (map[string]interface{}, error) {
 		localIPs = append(localIPs, podIP, (string)(option.LocalhostIPv4))
 	}
 
-	opts = append(opts, option.LocalIPs(localIPs))
+	opts = append(opts, option.LocalIPs(removeDuplicates(localIPs)))
 
 	proxyOpts, err := getProxyConfigOptions(cfg.Metadata)
 	if err != nil {

@@ -105,6 +105,7 @@ const (
 	OutputPath                = "output-paths"
 	NetworkNamespace          = "network-namespace"
 	CNIMode                   = "cni-mode"
+	LocalIP                   = "local-ip"
 )
 
 const (

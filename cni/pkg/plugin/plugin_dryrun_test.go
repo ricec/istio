@@ -136,6 +136,7 @@ func TestIPTablesRuleGeneration(t *testing.T) {
 			if _, err := os.Create(outputFilePath); err != nil {
 				t.Fatalf("Failed to create temp file for IPTables rule output: %v", err)
 			}
+			os.Setenv("LOCAL_IP", "1.2.3.4")
 			os.Setenv(dryRunFilePath.Name, outputFilePath)
 			_, _, err := testutils.CmdAddWithArgs(
 				&skel.CmdArgs{
@@ -144,6 +145,7 @@ func TestIPTablesRuleGeneration(t *testing.T) {
 					StdinData: []byte(cniConf),
 				}, func() error { return CmdAdd(args) })
 			os.Unsetenv(dryRunFilePath.Name)
+			os.Unsetenv("LOCAL_IP")
 			if err != nil {
 				t.Fatalf("CNI cmdAdd failed with error: %v", err)
 			}

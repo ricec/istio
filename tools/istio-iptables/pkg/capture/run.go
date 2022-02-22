@@ -161,7 +161,7 @@ func (cfg *IptablesConfigurator) handleInboundPortsInclude() {
 				constants.ISTIOTPROXY, constants.MANGLE, "!", "-d", constants.IPVersionSpecific,
 				"-p", constants.TCP, "-j", constants.TPROXY,
 				"--tproxy-mark", cfg.cfg.InboundTProxyMark+"/0xffffffff", "--on-port", cfg.cfg.InboundCapturePort,
-				"--on-ip", cfg.cfg.PodIP)
+				"--on-ip", cfg.cfg.LocalIP)
 			table = constants.MANGLE
 		} else {
 			table = constants.NAT
@@ -378,7 +378,7 @@ func (cfg *IptablesConfigurator) Run() {
 	// when not using TPROXY.
 
 	cfg.iptables.AppendRule(iptableslog.InboundCapture, constants.ISTIOINREDIRECT, constants.NAT, "-p", constants.TCP, "-j", constants.DNAT,
-		"--to-destination", fmt.Sprintf("%s:%s", cfg.cfg.PodIP, cfg.cfg.InboundCapturePort))
+		"--to-destination", fmt.Sprintf("%s:%s", cfg.cfg.LocalIP, cfg.cfg.InboundCapturePort))
 
 	cfg.handleInboundPortsInclude()
 
