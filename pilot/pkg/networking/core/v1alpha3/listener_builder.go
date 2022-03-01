@@ -350,7 +350,7 @@ func (lb *ListenerBuilder) buildHTTPProxyListener(configgen *ConfigGeneratorImpl
 	return lb
 }
 
-func (lb *ListenerBuilder) buildVirtualOutboundListener(configgen *ConfigGeneratorImpl) *ListenerBuilder {
+func (lb *ListenerBuilder) buildVirtualOutboundListener() *ListenerBuilder {
 	if lb.node.GetInterceptionMode() == model.InterceptionNone {
 		// virtual listener is not necessary since workload is not using IPtables for traffic interception
 		return lb
@@ -536,8 +536,9 @@ func buildInboundCatchAllFilterChains(configgen *ConfigGeneratorImpl,
 	// Setup enough slots for common max size (permissive mode is 5 filter chains). This is not
 	// exact, just best effort optimization
 	filterChains := make([]*listener.FilterChain, 0, 2+5*len(ipVersions))
-	filterChains = append(filterChains, inboundBlackholeFilterChain(uint32(ProxyInboundListenPort), push, node))
-	filterChains = append(filterChains, inboundBlackholeFilterChain(uint32(push.Mesh.ProxyListenPort), push, node))
+	filterChains = append(filterChains,
+		inboundBlackholeFilterChain(uint32(ProxyInboundListenPort), push, node),
+		inboundBlackholeFilterChain(uint32(push.Mesh.ProxyListenPort), push, node))
 
 	inspectors := map[int]enabledInspector{}
 	for _, clusterName := range ipVersions {

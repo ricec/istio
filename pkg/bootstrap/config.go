@@ -123,14 +123,14 @@ func (cfg Config) toTemplateParams() (map[string]interface{}, error) {
 			option.Wildcard(option.WildcardIPv6),
 			option.DNSLookupFamily(option.DNSLookupFamilyIPv6))
 
-		localIPs = append(localIPs, podIP, (string)(option.LocalhostIPv6))
+		localIPs = append(localIPs, podIP, string(option.LocalhostIPv6))
 	} else {
 		opts = append(opts,
 			option.Localhost(option.LocalhostIPv4),
 			option.Wildcard(option.WildcardIPv4),
 			option.DNSLookupFamily(option.DNSLookupFamilyIPv4))
 
-		localIPs = append(localIPs, podIP, (string)(option.LocalhostIPv4))
+		localIPs = append(localIPs, podIP, string(option.LocalhostIPv4))
 	}
 
 	opts = append(opts, option.LocalIPs(removeDuplicates(localIPs)))

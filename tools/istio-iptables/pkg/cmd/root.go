@@ -193,14 +193,14 @@ func getLocalIP(override string) (net.IP, error) {
 			}
 		}
 		return nil, fmt.Errorf("no valid local IP address found")
-	} else {
-		ip := net.ParseIP(override)
-		if ip == nil {
-			return nil, fmt.Errorf("invalid local IP address")
-		}
-
-		return ip, nil
 	}
+
+	ip := net.ParseIP(override)
+	if ip == nil {
+		return nil, fmt.Errorf("invalid local IP address")
+	}
+
+	return ip, nil
 }
 
 func handleError(err error) {
@@ -470,7 +470,8 @@ func bindCmdlineFlags(rootCmd *cobra.Command) {
 
 	rootCmd.Flags().Bool(constants.CNIMode, false, "Whether to run as CNI plugin.")
 
-	rootCmd.Flags().String(constants.LocalIP, "", "The local IP where inbound traffic is redirected (usually Pod IP). By default, this is inferred from the pod's network interfaces.")
+	rootCmd.Flags().String(constants.LocalIP, "",
+		"The local IP where inbound traffic is redirected (usually Pod IP). By default, this is inferred from the pod's network interfaces.")
 }
 
 func GetCommand() *cobra.Command {
