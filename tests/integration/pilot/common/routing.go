@@ -878,6 +878,7 @@ func reservedPortPassthroughCases(apps *EchoDeployments) []TrafficTestCase {
 
 				cases = append(cases, TrafficTestCase{
 					name: fmt.Sprintf("Reserved Port %d", dstPort.Port),
+					skip: apps.IsMulticluster(),
 					call: func(t test.Failer, options echo.CallOptions, retryOptions ...retry.Option) echoClient.Responses {
 						srcWorkload := src.WorkloadsOrFail(t)[0]
 						dstWorkload := dst.WorkloadsOrFail(t)[0]
